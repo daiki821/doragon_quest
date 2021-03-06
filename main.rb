@@ -10,28 +10,16 @@ class Brave
     @defense = params[:defense]
   end
 
+  def attack(target)
+    damege = self.offense - target.defense
+    target.hp -= damege
+    p <<~TEXT
+      #{self.name}は#{target.name}に#{damege}のダメージを与えた
+      #{target.name}の残りHPは#{target.hp}だ
+    TEXT
+  end
+
 end
-
-brave = Brave.new(name: '勇者', hp: 1000, offense: 800, defense: 600)
-
-
-
-
-p <<~TEXT
-  NAME:#{brave.name}
-  HP:#{brave.hp}
-  OFFENSE:#{brave.offense}
-  DEFENSE:#{brave.defense}
-TEXT
-
-
-brave.hp -= 30
-
-
-p "#{brave.name}はダメージを受けた!残りHPは#{brave.hp}だ"
-
-
-
 
 class Monster
   attr_reader :name, :offense, :defense
@@ -45,19 +33,11 @@ class Monster
   end
 end
 
-monster = Monster.new(name: 'スライム', hp: 1000, offense: 700, defense: 500)
+brave = Brave.new(name: '勇者', hp: 500, offense: 150, defense: 100)
+monster = Monster.new(name: 'スライム', hp: 250, offense: 200, defense: 100)
 
-monster.hp -= 200
+brave.attack(monster)
 
-p <<~TEXT
-  NAME; #{monster.name}
-  HP; #{monster.hp}
-  OFFENSE; #{monster.offense}
-  DEFENSE; #{monster.defense}
-TEXT
-
-
-p "モンスターは攻撃を受けた残りHP#{monster.hp}"
 
 
 
