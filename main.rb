@@ -12,28 +12,51 @@ class Brave
   end
 
   def attack(monster)
-    attack_num = rand(4)
+    attack_type = decision_attack_type
 
-    if attack_num == 0
-      p "#{self.name}の必殺技"
-      damege = calculate_special_attack - monster.defense
-    else
-      p "#{self.name}の攻撃"
-      damege = self.offense - monster.defense
+    damege = calculate_damage(attack_type: attack_type, target: monster)
+
+    cause_damage(target: monster, damege: damege)
+  end
+
+  private
+    def calculate_damage(**params)
+      attack_type = params[:attack_type]
+      monster = params[:target]
+
+      if attack_type == 'special_attack'
+        p "#{self.name}の必殺技"
+        calculate_special_attack - monster.defense
+      else
+        p "#{self.name}の攻撃"
+        self.offense - monster.defense
+      end
+
     end
 
-    monster.hp -= damege
+    def calculate_special_attack
+      self.offense * SPECIAL_ATTACK_CONSTANT
+    end
 
-    p <<~TEXT
-      #{self.name}は#{monster.name}に#{damege}のダメージを与えた
-      #{monster.name}の残りHPは#{monster.hp}だ
-    TEXT
-  end
+    def decision_attack_type
+      attack_num = rand(4)
+      if attack_num == 0
+        'special_attack'
+      else
+        'normal_attack'
+      end
+    end
 
-  def calculate_special_attack
-    self.offense * SPECIAL_ATTACK_CONSTANT
-  end
+    def cause_damage(**params)
+      monster = params[:target]
+      damege = params[:damege]
 
+      monster.hp -= damege
+      p <<~TEXT
+        #{self.name}は#{monster.name}に#{damege}のダメージを与えた
+        #{monster.name}の残りHPは#{monster.hp}だ
+      TEXT
+    end
 end
 
 class Monster
@@ -41,13 +64,13 @@ class Monster
 
   POWER_UP_RATE = 1.5
   CALC_HP_HALF = 0.5
-  
+
   def initialize(params)
     @name = params[:name]
     @hp = params[:hp]
     @offense = params[:offense]
     @defense = params[:defense]
-    @transformed =  false
+    @transformed = false
     @hp_half = params[:hp] * CALC_HP_HALF
   end
 
@@ -87,15 +110,4 @@ brave = Brave.new(name: '勇者', hp: 500, offense: 150, defense: 100)
 monster = Monster.new(name: 'スライム', hp: 250, offense: 200, defense: 100)
 
 brave.attack(monster)
-brave.attack(monster)
-
 monster.attack(brave)
-monster.attack(brave)
-
-
-
-
-
-
-
-
