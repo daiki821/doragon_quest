@@ -52,6 +52,9 @@ class Brave
       damege = params[:damege]
 
       monster.hp -= damege
+
+      monster.hp = 0 if monster.hp <= 0
+      
       p <<~TEXT
         #{self.name}は#{monster.name}に#{damege}のダメージを与えた
         #{monster.name}の残りHPは#{monster.hp}だ
@@ -75,26 +78,44 @@ class Monster
   end
 
   def attack(brave)
-    if self.hp <= @hp_half && self.transformed == false
+    damege = has_transformed?(hp_half: @hp_half, target: brave)
+
+    cal_damage(damege: damege, target: brave)
+  end
+
+
+
+  private
+
+  def has_transformed?(**params)
+    hp_half = params[:hp_half]
+    brave = params[:target]
+
+    if self.hp <= hp_half && self.transformed == false
       transformation
-      damege = self.offense - brave.defense
+      self.offense - brave.defense
     else
-      damege = self.offense - brave.defense
+      self.offense - brave.defense
     end
+  end
+
+  def cal_damage(**params)
+    damege = params[:damege]
+    brave = params[:target]
 
     brave.hp -= damege
 
+    brave.hp = 0 if brave.hp <= 0
+
     p <<~TEXT
-      #{self.name}は#{brave.name}に#{damege}のダメージを与えた
-      #{brave.name}の残りHPは#{brave.hp}だ
-    TEXT
+    #{self.name}は#{brave.name}に#{damege}のダメージを与えた
+    #{brave.name}の残りHPは#{brave.hp}だ
+  TEXT
   end
 
   def calculate_special_attack
     self.offense *=  POWER_UP_RATE
   end
-
-  private
 
   def transformation
     self.transformed = true
@@ -109,5 +130,15 @@ end
 brave = Brave.new(name: '勇者', hp: 500, offense: 150, defense: 100)
 monster = Monster.new(name: 'スライム', hp: 250, offense: 200, defense: 100)
 
-brave.attack(monster)
-monster.attack(brave)
+loop do
+  brave.attack(monster)
+  if monster.hp <= 0
+    break
+  end
+  monster.attack(brave)
+  if brave.hp <= 0
+    break
+  end
+end
+
+
